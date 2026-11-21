@@ -1,0 +1,401 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SCADA Campus Lighting Control | UNPAM</title>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #0b1220;
+    color: #e2e8f0;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background: #111c30;
+    border-right: 1px solid #243550;
+    padding: 25px 18px;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: bold;
+    color: #38bdf8;
+    margin-bottom: 8px;
+}
+
+.logo-desc {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-bottom: 35px;
+}
+
+.menu-title {
+    font-size: 11px;
+    color: #64748b;
+    margin: 20px 10px 12px;
+    letter-spacing: 1px;
+}
+
+.menu a {
+    display: block;
+    text-decoration: none;
+    color: #94a3b8;
+    padding: 13px;
+    border-radius: 9px;
+    margin-bottom: 7px;
+    font-size: 14px;
+}
+
+.menu a.active,
+.menu a:hover {
+    background: #1e3a5f;
+    color: #38bdf8;
+}
+
+/* MAIN */
+.main {
+    margin-left: 250px;
+    padding: 25px 30px;
+}
+
+/* HEADER */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
+
+.header h1 {
+    font-size: 24px;
+    margin-bottom: 6px;
+}
+
+.header p {
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.clock {
+    background: #17263c;
+    border: 1px solid #29415f;
+    padding: 12px 18px;
+    border-radius: 10px;
+    color: #38bdf8;
+    font-weight: bold;
+}
+
+/* CONNECTION */
+.connection {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #34d399;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    background: #34d399;
+    border-radius: 50%;
+}
+
+/* SECTION */
+.section-title {
+    font-size: 17px;
+    margin-bottom: 18px;
+}
+
+/* SUMMARY */
+.summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 30px;
+}
+
+.card {
+    background: linear-gradient(145deg, #172b45, #101d30);
+    border: 1px solid #294563;
+    border-radius: 15px;
+    padding: 22px;
+}
+
+.card p {
+    color: #94a3b8;
+    font-size: 13px;
+    margin-bottom: 15px;
+}
+
+.card h2 {
+    font-size: 29px;
+}
+
+.card small {
+    color: #64748b;
+    font-size: 11px;
+}
+
+/* AREA */
+.area-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+.area-card {
+    background: #142238;
+    border: 1px solid #294563;
+    padding: 20px;
+    border-radius: 14px;
+}
+
+.area-card h3 {
+    font-size: 15px;
+    margin-bottom: 12px;
+}
+
+.area-card p {
+    color: #94a3b8;
+    font-size: 12px;
+    margin-bottom: 15px;
+}
+
+.area-number {
+    font-size: 25px;
+    font-weight: bold;
+    color: #38bdf8;
+}
+
+.status {
+    display: inline-block;
+    background: #064e3b;
+    color: #34d399;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1000px) {
+    .summary {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .area-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+    .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+    }
+
+    .main {
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    .summary,
+    .area-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+
+    <div class="logo">
+        SCADA LIGHTING
+    </div>
+
+    <div class="logo-desc">
+        UNIVERSITAS PAMULANG
+        PSDKU KOTA SERANG
+    </div>
+
+    <div class="menu-title">MENU UTAMA</div>
+
+    <nav class="menu">
+        <a href="#" class="active">Dashboard</a>
+        <a href="#area">Monitoring Area</a>
+        <a href="#kontrol">Kontrol Lampu</a>
+        <a href="#grafik">Grafik Monitoring</a>
+        <a href="#alarm">Alarm Gangguan</a>
+        <a href="#riwayat">Riwayat Aktivitas</a>
+    </nav>
+
+    <div class="menu-title">SISTEM</div>
+
+    <nav class="menu">
+        <a href="#informasi">Informasi Sistem</a>
+    </nav>
+
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+    <header class="header">
+
+        <div>
+            <h1>Campus Lighting Control</h1>
+
+            <p>
+                Sistem Monitoring dan Pengendalian
+                Lampu Penerangan Kampus
+            </p>
+
+            <div class="connection">
+                <span class="dot"></span>
+                SIMULATION SYSTEM
+            </div>
+        </div>
+
+        <div class="clock" id="clock">
+            Memuat waktu...
+        </div>
+
+    </header>
+
+    <h2 class="section-title">
+        Ringkasan Monitoring
+    </h2>
+
+    <section class="summary">
+
+        <div class="card">
+            <p>Total Lampu</p>
+            <h2>30</h2>
+            <small>6 Area Kampus</small>
+        </div>
+
+        <div class="card">
+            <p>Lampu Menyala</p>
+            <h2>20</h2>
+            <small>Status ON</small>
+        </div>
+
+        <div class="card">
+            <p>Lampu Mati</p>
+            <h2>9</h2>
+            <small>Status OFF</small>
+        </div>
+
+        <div class="card">
+            <p>Gangguan</p>
+            <h2>1</h2>
+            <small>Perlu pemeriksaan</small>
+        </div>
+
+    </section>
+
+    <section id="area">
+
+        <h2 class="section-title">
+            Monitoring Area Kampus
+        </h2>
+
+        <div class="area-grid">
+
+            <div class="area-card">
+                <h3>Gedung Perkuliahan</h3>
+                <p>Ruang kelas, lorong, dan tangga</p>
+                <div class="area-number">8 Lampu</div>
+                <span class="status">Monitoring Aktif</span>
+            </div>
+
+            <div class="area-card">
+                <h3>Laboratorium</h3>
+                <p>Laboratorium komputer dan praktikum</p>
+                <div class="area-number">5 Lampu</div>
+                <span class="status">Monitoring Aktif</span>
+            </div>
+
+            <div class="area-card">
+                <h3>Perpustakaan</h3>
+                <p>Ruang baca dan lorong</p>
+                <div class="area-number">4 Lampu</div>
+                <span class="status">Monitoring Aktif</span>
+            </div>
+
+            <div class="area-card">
+                <h3>Area Parkir</h3>
+                <p>Parkiran motor dan mobil</p>
+                <div class="area-number">5 Lampu</div>
+                <span class="status">Monitoring Aktif</span>
+            </div>
+
+            <div class="area-card">
+                <h3>Jalan dan Koridor Kampus</h3>
+                <p>Jalan, taman, dan jalur pejalan kaki</p>
+                <div class="area-number">5 Lampu</div>
+                <span class="status">Monitoring Aktif</span>
+            </div>
+
+            <div class="area-card">
+                <h3>Gedung Administrasi</h3>
+                <p>Ruang dosen dan kantor administrasi</p>
+                <div class="area-number">3 Lampu</div>
+                <span class="status">Monitoring Aktif</span>
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+<script>
+
+// JAM DIGITAL
+function updateClock() {
+
+    const now = new Date();
+
+    document.getElementById("clock").textContent =
+        now.toLocaleDateString("id-ID") + " | " +
+        now.toLocaleTimeString("id-ID");
+
+}
+
+updateClock();
+setInterval(updateClock, 1000);
+
+</script>
+
+</body>
+</html>
